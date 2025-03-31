@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDS Solver | Anhad Rana</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --accent: #fd79a8;
+        }
+
+        body {
+            background-color: var(--light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image: radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.1) 0%, rgba(253, 121, 168, 0.1) 90%);
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(108, 92, 231, 0.2);
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: none;
+            padding: 0 0 20px 0;
+            position: relative;
+        }
+
+        .card-header h3 {
+            color: var(--dark);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header h3::after {
+            content: 'by Anhad Rana';
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 600;
+            background: rgba(108, 92, 231, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 200px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
+        }
+
+        .loading {
+            display: none;
+            border: 3px solid rgba(108, 92, 231, 0.2);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-weight: 600;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .btn-primary {
+            background-color: var(--primary) !important;
+            border: none;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: #5649c0 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-primary i {
+            margin-right: 8px;
+        }
+
+        #response {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-btn {
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            background: rgba(108, 92, 231, 0.05);
+        }
+
+        .file-upload-btn:hover {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.1);
+        }
+
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .signature {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--dark);
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .signature strong {
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-robot"></i> TDS GA Solver</h3>
+            </div>
+            <form id="tds-form">
+                <div class="mb-4">
+                    <label for="question" class="form-label fw-bold">Your GA Question:</label>
+                    <textarea class="form-control" id="question" name="question"
+                        placeholder="Enter your graded assignment question here..."
+                        rows="6" required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Upload Supporting Files:</label>
+                    <div class="file-upload">
+                        <label class="file-upload-btn">
+                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: var(--primary);"></i>
+                            <div>Click to upload or drag and drop</div>
+                            <div class="small text-muted">(PNG, JSON, PDF, CSV, TXT, etc.)</div>
+                            <input type="file" class="file-upload-input" id="file" name="file"
+                                accept=".png,.json,.jsonl,.pdf,.xlsx,.csv,.zip,.jpg,.jpeg,.txt,.md,.webp">
+                        </label>
+                        <div id="file-name" class="file-name"></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">
+                    <i class="fas fa-paper-plane"></i> Submit <span class="loading"></span>
+                </button>
+            </form>
+            <div class="mt-4">
+                <h5 class="fw-bold mb-3"><i class="fas fa-comment-dots"></i> Solution:</h5>
+                <pre id="response" class="p-3">Your solution will appear here...</pre>
+            </div>
+            <div class="signature">
+                Crafted with <i class="fas fa-heart" style="color: var(--accent);"></i> by <strong>Anhad Rana</strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("tds-form").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            let formData = new FormData();
+            let questionValue = document.getElementById("question").value.trim();
+            let fileInput = document.getElementById("file").files[0];
+            let responseBox = document.getElementById("response");
+            let loadingIndicator = document.querySelector(".loading");
+            let submitBtn = document.querySelector("button[type='submit']");
+
+            // Clear response box & show loading
+            responseBox.textContent = "Processing your request...";
+            loadingIndicator.style.display = "inline-block";
+            submitBtn.disabled = true;
+
+            if (questionValue.length === 0) {
+                responseBox.innerHTML = `<span class="error-message">Please enter a question before submitting.</span>`;
+                loadingIndicator.style.display = "none";
+                submitBtn.disabled = false;
+                return;
+            }
+
+            formData.append("question", questionValue);
+
+            if (fileInput) {
+                formData.append("file", fileInput);
+            }
+
+            try {
+                let response = await fetch("/api/", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server responded with status ${response.status}`);
+                }
+
+                let result = await response.json();
+                responseBox.innerHTML = `<strong style="color: var(--primary);">Solution:</strong>\n\n${formatResponse(result)}`;
+
+                document.getElementById("tds-form").reset();
+                document.getElementById("file-name").textContent = "";
+            } catch (error) {
+                responseBox.innerHTML = `<span class="error-message"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</span>`;
+            } finally {
+                loadingIndicator.style.display = "none";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Display selected file name
+        document.getElementById("file").addEventListener("change", function() {
+            const fileName = this.files[0] ? this.files[0].name : "No file selected";
+            document.getElementById("file-name").textContent = `Selected: ${fileName}`;
+        });
+
+        // Format the API response for better readability
+        function formatResponse(data) {
+            if (typeof data === 'string') return data;
+            
+            try {
+                return JSON.stringify(data, null, 2)
+                    .replace(/"([^"]+)":/g, '$1:')
+                    .replace(/^{/, '')
+                    .replace(/}$/, '')
+                    .trim();
+            } catch {
+                return data.toString();
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
